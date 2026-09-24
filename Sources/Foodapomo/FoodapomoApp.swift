@@ -1,8 +1,16 @@
 import SwiftUI
 import SwiftData
 
+@MainActor final class AppSessionStore: ObservableObject {
+    @Published var selectedActivity = ""
+    @Published var selectedCalendarEventID: String?
+    @Published var selectedCalendarEventTitle: String?
+}
+
 @main
 struct FoodapomoApp: App {
+    @StateObject private var sessionStore = AppSessionStore()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([FocusSession.self, PomodoroSettings.self])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
@@ -11,10 +19,10 @@ struct FoodapomoApp: App {
     }()
 
     var body: some Scene {
-        WindowGroup { RootView() }
+        WindowGroup { RootView().environmentObject(sessionStore) }
             .modelContainer(sharedModelContainer)
         MenuBarExtra("Foodapomo", systemImage: "timer") {
-            MenuBarView().modelContainer(sharedModelContainer)
+            MenuBarView().environmentObject(sessionStore).modelContainer(sharedModelContainer)
         }
         .menuBarExtraStyle(.window)
     }
